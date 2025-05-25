@@ -14,7 +14,7 @@ jobs:
       - name: Compile main classes
         working-directory: src/my_chatapplication
         run: |
-          javac -cp "../../test/resources/junit-platform-console-standalone-1.8.2.jar:../../test/resources/json-simple-1.1.1.jar" \
+          javac -cp "../../test/resources/junit-platform-console-standalone-1.6.0.jar:../../test/resources/json-simple-1.1.1.jar" \
           *.java
 
       - name: Copy compiled classes to test resources
@@ -28,13 +28,13 @@ jobs:
       - name: Compile test classes
         working-directory: test/resources
         run: |
-          javac -cp "../../test/resources/junit-platform-console-standalone-1.8.2.jar:../../test/resources/json-simple-1.1.1.jar" \
+          javac -cp "../../test/resources/junit-platform-console-standalone-1.6.0.jar:../../test/resources/json-simple-1.1.1.jar" \
           *.java
 
       - name: Run tests and generate report
         working-directory: test/resources
         run: |
-          java -jar ../../test/resources/junit-platform-console-standalone-1.8.2.jar \
+          java -jar ../../test/resources/junit-platform-console-standalone-1.6.0.jar \
           --class-path ../my_chatapplication \
           --select-class my_chatapplication.MyChatAppTest \
-      reports-dir=reports
+         reports-dir=reports
