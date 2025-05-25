@@ -1,0 +1,57 @@
+name: TestJava
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: List root directory
+        run: ls
+
+      - name: List src/my_chatapplication directory
+        working-directory: src/my_chatapplication
+        run: ls
+
+      - name: Compile classes
+        working-directory: src/my_chatapplication
+        run: |
+          javac -cp "../../test/resources/junit-platform-console-standalone-1.8.2.jar" \
+          *.java
+
+      - name: List classes after compilation
+        working-directory: src/my_chatapplication
+        run: ls
+
+      - name: Copy compiled classes to test resources
+        run: |
+          cp *.class ../test_resources/
+
+      - name: List test_resources directory
+        working-directory: test_resources
+        run: ls
+
+      - name: Compile test classes
+        working-directory: test/resources
+        run: |
+          javac -cp "../../test/resources/junit-platform-console-standalone-1.8.2.jar" \
+          *.java
+
+      - name: List test classes after compilation
+        working-directory: test/resources
+        run: ls
+
+      - name: Run tests and generate report
+        working-directory: test/resources
+        run: |
+          java -jar junit-platform-console-standalone-1.8.2.jar \
+          --class-path ../my_chatapplication \
+          --select-class my_chatapplication.my_chatapplication.MyChatAppTest \
+          --reports-dir=reports
