@@ -1,40 +1,60 @@
+# This is a basic workflow that is manually triggered
+
+name: TestJava
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  # This workflow contains a single job called "build"
   build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: List root directory
+      
+       # list contents or directory
+      - name: List contents
         run: ls
+     # Compiles classes to test 
+      - name: compile classes
+        working-directory: ./src/my_chatapplication
+        run: javac -cp "../../testresources/junit-platform-console-standalone-1.6.0.jar" CustomChatApp.java LoginForm.java RegisterForm.java "../../test/my_chatapplication/CustomChatAppTest.java"  "../../test/my_chatapplication/LoginFormTest.java"  "../../test/my_chatapplication/RegisterFormTest.java" 
 
-      - name: List src/my_chatapplication directory
-        working-directory: src/my_chatapplication
+    # list contents of src to verify that classess compiled 
+      - name: List contents of src directory after compile
+        working-directory: ./src/my_chatapplication
         run: ls
-
-      - name: Compile main classes
-        working-directory: src/my_chatapplication
-        run: |
-          javac -cp "../../test/resources/junit-platform-console-standalone-1.6.0.jar:../../test/resources/json-simple-1.1.1.jar" \
-          *.java
-
-      - name: Copy compiled classes to test resources
-        run: |
-          cp *.class ../test_resources/
-
-      - name: List test_resources directory
-        working-directory: test_resources
+        
+        
+       # copy compiled classes to test directory 
+      - name : copy compiled classes to testresources directory 
+        working-directory: ./src/my_chatapplication
+        run: cp -t  "../../test/my_chatapplication" CustomChatApp.class LoginForm.class RegisterForm.class
+        
+        #copy compiled tests 
+      - name : copy compiled Test classes to testresources directory 
+        working-directory: ./test/my_chatapplication
+        run: cp -t  "../../testresources/" junit-platform-console-standalone-1.6.0.jar
+        
+        # list contents or directory
+      - name: List contents test package
+        working-directory: ./test/my_chatapplication
         run: ls
-
-      - name: Compile test classes
-        working-directory: test/resources
-        run: |
-          javac -cp "../../test/resources/junit-platform-console-standalone-1.6.0.jar:../../test/resources/json-simple-1.1.1.jar" \
-          *.java
-
-      - name: Run tests and generate report
-        working-directory: test/resources
-        run: |
-          java -jar ../../test/resources/junit-platform-console-standalone-1.6.0.jar \
-          --class-path ../my_chatapplication \
-          --select-class my_chatapplication.MyChatAppTest \
-         reports-dir=reports
+        
+        #run tests and output report 
+      - name: run tests and create report 
+        working-directory: ./test
+        run: java  "../testresources/junit-platform-suite-commons-1.6.0.jar:../testresources/junit-platform-suite-api-1.6.0.jar:../testresources/junit-platform-suite-engine-1.6.0:../testresources/juniorg.junit.platform.console.ConsoleLauncher " -cp "./my_chatapplication" --select-class CustomChatAppTest  --reports-dir ="reports"
